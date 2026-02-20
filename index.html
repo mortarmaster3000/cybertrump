@@ -13,7 +13,7 @@
     background: #000;
     overflow: hidden;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
   }
 
   /* ══════════════════════════════
@@ -125,17 +125,18 @@
     position: fixed;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     background: transparent;
     opacity: 0;
   }
 
   .img-layer img {
-    height: 100vh;
+    height: 100dvh;
     width: auto;
     max-width: 100vw;
     object-fit: contain;
+    object-position: bottom;
     display: block;
     position: relative;
     z-index: 2;
@@ -223,14 +224,14 @@
     position: fixed;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     z-index: 7;
     opacity: 0;
     pointer-events: none;
   }
   #glitch-img img {
-    height: 100vh;
+    height: 100dvh;
     width: auto;
     max-width: 100vw;
     object-fit: contain;
@@ -524,6 +525,11 @@
   }
 
   function startSequence() {
+    // Unlock audio on iOS by touching it during the click event
+    anthem.load();
+    anthem.play().then(() => anthem.pause()).catch(() => {});
+    anthem.currentTime = 0;
+
     activateScreen.style.transition = 'opacity 0.4s ease';
     activateScreen.style.opacity = '0';
     setTimeout(() => activateScreen.style.display = 'none', 400);

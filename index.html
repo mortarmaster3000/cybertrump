@@ -519,8 +519,8 @@
         fade(fadeBlack, 1, half);
         setTimeout(() => {
           layerSalute.style.opacity = '0';
-          // flag stays — final screen sits on top of it
-          finalScreen.style.background = 'transparent'; // let flag show through
+          flagVideo.style.opacity = '0';
+          finalScreen.style.background = '#000';
           finalScreen.style.opacity = '1';
           finalScreen.style.pointerEvents = 'auto';
           fade(fadeBlack, 0, half);

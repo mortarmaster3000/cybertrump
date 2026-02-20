@@ -298,7 +298,7 @@
 
   #final-h1 {
     font-family: 'Black Han Sans', sans-serif;
-    font-size: clamp(60px, 16vw, 220px);
+    font-size: clamp(50px, 11vw, 150px);
     color: #ff0000;
     text-shadow:
       0 0 30px #ff0000,
@@ -322,41 +322,25 @@
     position: relative;
   }
 
-  /* glitch layers — pseudo-elements offset for RGB split feel */
-  #final-h1::before,
-  #final-h1::after {
-    content: 'CYBERTRUMP';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-  }
-  #final-h1::before { color: #0ff; left: 3px; }
-  #final-h1::after  { color: #f0f; left: -3px; }
-
-  /* glitch on */
-  #final-h1.glitching::before,
-  #final-h1.glitching::after {
-    opacity: 0.7;
-    animation: rgbSplit 0.07s steps(1) infinite;
-  }
+  /* glitch — disappear/reappear style like opening, no pseudo elements needed */
   #final-h1.glitching {
-    animation: mainGlitch 0.07s steps(1) infinite;
+    animation: finalGlitch 0.12s steps(1) infinite;
+  }
+  #final-p.glitching {
+    animation: finalGlitch 0.18s steps(1) infinite;
   }
 
-  @keyframes mainGlitch {
-    0%   { clip-path: inset(0 0 90% 0); transform: translate(-6px, 0); }
-    20%  { clip-path: inset(35% 0 45% 0); transform: translate(6px, 0); }
-    40%  { clip-path: inset(70% 0 10% 0); transform: translate(-3px, 0); }
-    60%  { clip-path: inset(15% 0 65% 0); transform: translate(3px, 0); }
-    80%  { clip-path: inset(50% 0 30% 0); transform: translate(-5px, 0); }
-    100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
-  }
-
-  @keyframes rgbSplit {
-    0%   { clip-path: inset(20% 0 60% 0); transform: translate(8px, 0); }
-    33%  { clip-path: inset(60% 0 15% 0); transform: translate(-8px, 0); }
-    66%  { clip-path: inset(5% 0 80% 0);  transform: translate(4px, 0); }
-    100% { clip-path: inset(40% 0 40% 0); transform: translate(-4px, 0); }
+  @keyframes finalGlitch {
+    0%   { opacity: 1; clip-path: inset(0 0 0 0);    transform: translate(0, 0); }
+    10%  { opacity: 0; clip-path: inset(20% 0 60% 0); transform: translate(-8px, 0); }
+    20%  { opacity: 1; clip-path: inset(0 0 0 0);    transform: translate(0, 0); }
+    35%  { opacity: 0; clip-path: inset(70% 0 10% 0); transform: translate(8px, 0); }
+    45%  { opacity: 1; clip-path: inset(0 0 0 0);    transform: translate(0, 0); }
+    55%  { opacity: 0; clip-path: inset(40% 0 40% 0); transform: translate(-5px, 0); }
+    65%  { opacity: 1; clip-path: inset(0 0 0 0);    transform: translate(0, 0); }
+    80%  { opacity: 0; clip-path: inset(5% 0 85% 0);  transform: translate(5px, 0); }
+    90%  { opacity: 1; clip-path: inset(0 0 0 0);    transform: translate(0, 0); }
+    100% { opacity: 1; clip-path: inset(0 0 0 0);    transform: translate(0, 0); }
   }
 
   /* scanlines on final screen */
@@ -429,6 +413,23 @@
   <p id="final-p">MAKE AMERICA GREAT AGAIN</p>
 </div>
 
+<!-- ── TEST BUTTON (remove before publishing) ── -->
+<button id="test-btn" onclick="
+  document.getElementById('activate-screen').style.display='none';
+  document.getElementById('blackscreen').style.opacity='0';
+  document.getElementById('layer-back').style.opacity='1';
+  document.getElementById('flag-video').style.opacity='1';
+  document.getElementById('scanlines').style.opacity='1';
+  document.getElementById('vignette').style.opacity='1';
+  document.getElementById('text-overlay').style.opacity='1';
+  document.getElementById('text-overlay').style.bottom='6vh';
+  const a = document.getElementById('anthem');
+  a.currentTime = Math.max(0, a.duration - 6 || 0);
+  a.volume = 1; a.play();
+" style="position:fixed;bottom:10px;right:10px;z-index:9999;background:#ff0000;color:#fff;font-family:monospace;font-size:11px;padding:6px 10px;border:none;cursor:pointer;opacity:0.7;letter-spacing:2px;">
+  TEST ENDING
+</button>
+
 <audio id="anthem"     src="anthem.ogg"     preload="auto"></audio>
 <audio id="eagle"      src="eagle.mp3"       preload="auto"></audio>
 <audio id="jumpscare"  src="jumpscare.mp3"   preload="auto"></audio>
@@ -491,41 +492,51 @@
     if (!anthem._eagleTriggered && anthem.duration &&
         anthem.currentTime >= anthem.duration - 2) {
       anthem._eagleTriggered = true;
-
-      // Fade to black, hide back layer + flag, show salute
-      fadeToBlack(layerBack, layerSalute, 800, () => {
-        // Eagle caw plays as salute appears
-        eagle.play().catch(() => {});
-
-        // Also hide the bottom text overlay
-        fade(textOverlay, 0, 400);
-        // Hide flag
-        flagVideo.style.opacity = '0';
-
-        // After eagle finishes (5s), fade to final title screen
-        setTimeout(() => {
-          fadeToBlack(layerSalute, null, 1000, () => {
-            // Bring up final screen
-            finalScreen.style.opacity = '1';
-            finalScreen.style.pointerEvents = 'auto';
-
-            // Glitch for ~1.2s then settle
-            finalH1.classList.add('glitching');
-            setTimeout(() => {
-              finalH1.classList.remove('glitching');
-              // Settle: fade subtitle in clean
-              finalP.style.transition = 'opacity 1s ease';
-              finalP.style.opacity = '0';
-              setTimeout(() => {
-                finalP.style.opacity = '1';
-              }, 200);
-            }, 1200);
-          }, false, true); // hideFlag=true
-        }, 5000); // eagle is 5s long
-
-      }, false, true); // showFlag=false, hideFlag=true — flag fades during transition
+      triggerEnding();
     }
   });
+
+  function triggerEnding() {
+    const half = 400; // fast fade — 800ms total
+
+    // Fade text overlay out immediately and quickly (#2)
+    fade(textOverlay, 0, 300);
+
+    // Fade to black
+    fade(fadeBlack, 1, half);
+    setTimeout(() => {
+      // While black: hide back + flag, show salute
+      layerBack.style.opacity = '0';
+      flagVideo.style.opacity = '0';
+      layerSalute.style.opacity = '1';
+
+      // Fade back in — eagle plays exactly as image appears (#3)
+      fade(fadeBlack, 0, half);
+      eagle.play().catch(() => {});
+
+      // After eagle finishes (5s) → fade to final title
+      setTimeout(() => {
+        fade(fadeBlack, 1, half);
+        setTimeout(() => {
+          layerSalute.style.opacity = '0';
+          // Show final screen
+          finalScreen.style.opacity = '1';
+          finalScreen.style.pointerEvents = 'auto';
+          fade(fadeBlack, 0, half);
+
+          // Glitch both title and subtitle, then settle (#4)
+          finalH1.classList.add('glitching');
+          finalP.classList.add('glitching');
+          setTimeout(() => {
+            finalH1.classList.remove('glitching');
+            finalP.classList.remove('glitching');
+          }, 1400);
+
+        }, half);
+      }, 5000);
+
+    }, half);
+  }
 
   function startSequence() {
     activateScreen.style.transition = 'opacity 0.4s ease';

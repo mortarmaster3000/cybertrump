@@ -163,7 +163,7 @@
   #flag-video {
     position: fixed;
     inset: 0;
-    z-index: 52;
+    z-index: 1;
     opacity: 0;
   }
   #flag-video video {
@@ -508,12 +508,11 @@
     layerBack.style.transition = 'opacity 800ms ease';
     layerBack.style.opacity = '0';
 
-    // Eagle plays as salute becomes visible
-    setTimeout(() => {
-      eagle.play().catch(() => {});
+    // Eagle plays as salute fades in
+    eagle.play().catch(() => {});
 
-      // After eagle finishes → fade to final title (flag keeps playing)
-      setTimeout(() => {
+    // After eagle finishes → fade to final title
+    setTimeout(() => {
         fade(fadeBlack, 1, half);
         setTimeout(() => {
           layerSalute.style.opacity = '0';
@@ -534,7 +533,6 @@
         }, half);
       }, 3500); // eagle is ~3.5s effective
 
-    }, half);
   }
 
   function startSequence() {

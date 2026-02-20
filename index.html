@@ -16,8 +16,6 @@
     height: 100vh;
   }
 
-  #svg-filters { position: absolute; width: 0; height: 0; }
-
   /* ── black opening screen ── */
   #blackscreen {
     position: fixed;
@@ -59,16 +57,18 @@
     display: block;
     position: relative;
     z-index: 2;
+    /* Darken and boost contrast on all images */
+    filter: contrast(1.4) brightness(0.75) saturate(0.85);
   }
 
-  /* red side glow for the black bars */
+  /* red side glow for black bars */
   .img-layer::before {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse 35% 80% at 0% 50%,   rgba(160,0,0,0.22) 0%, transparent 70%),
-      radial-gradient(ellipse 35% 80% at 100% 50%,  rgba(160,0,0,0.22) 0%, transparent 70%);
+      radial-gradient(ellipse 35% 80% at 0% 50%,   rgba(140,0,0,0.25) 0%, transparent 70%),
+      radial-gradient(ellipse 35% 80% at 100% 50%,  rgba(140,0,0,0.25) 0%, transparent 70%);
     pointer-events: none;
     z-index: 1;
   }
@@ -83,12 +83,22 @@
     inset: 0;
     z-index: 2;
     opacity: 0;
-    transition: opacity 0.5s ease;
   }
   #flag-video video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    filter: brightness(0.5) saturate(1.2);
+  }
+
+  /* ── black fade overlay (used for fade-to-black transitions) ── */
+  #fade-black {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* ── flash ── */
@@ -119,7 +129,7 @@
   #vignette {
     position: fixed;
     inset: 0;
-    background: radial-gradient(ellipse at center, transparent 35%, #000 100%);
+    background: radial-gradient(ellipse at center, transparent 30%, #000 100%);
     z-index: 8;
     opacity: 0;
     pointer-events: none;
@@ -141,7 +151,7 @@
     width: auto;
     max-width: 100vw;
     object-fit: contain;
-    filter: hue-rotate(90deg) contrast(2.5) saturate(3);
+    filter: hue-rotate(90deg) contrast(3) saturate(4) brightness(0.8);
   }
   @keyframes glitch {
     0%   { clip-path: inset(0 0 92% 0);   transform: translate(-12px, 0); }
@@ -203,40 +213,27 @@
 </head>
 <body>
 
-<!-- SVG warp filter -->
-<svg id="svg-filters" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <filter id="warp-filter" x="-25%" y="-25%" width="150%" height="150%">
-      <feTurbulence id="turb" type="turbulence"
-        baseFrequency="0.012 0.012" numOctaves="3" seed="5" result="noise"/>
-      <feDisplacementMap id="dispMap" in="SourceGraphic" in2="noise"
-        scale="0" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-  </defs>
-</svg>
-
 <div id="blackscreen">
   <span id="cursor-text">· · ·</span>
 </div>
 
 <div id="flash"></div>
+<div id="fade-black"></div>
 
-<!-- Flag video sits at the very back -->
+<!-- Flag video at the very back -->
 <div id="flag-video">
   <video autoplay loop muted playsinline>
-    <source src="freestock_1409812.mp4" type="video/mp4">
+    <source src="flag.mp4" type="video/mp4">
   </video>
 </div>
 
-<!-- Image layers, back to front -->
+<!-- Image layers back to front -->
 <div class="img-layer" id="layer-back">
   <img src="CT-Back.png" alt="CYBERTRUMP back">
 </div>
-
 <div class="img-layer" id="layer-salute">
   <img src="CT-Hand.png" alt="CYBERTRUMP salute">
 </div>
-
 <div class="img-layer" id="layer-shocked">
   <img src="CT-Shocked.png" alt="CYBERTRUMP shocked">
 </div>
@@ -256,6 +253,7 @@
 <script>
   const blackscreen  = document.getElementById('blackscreen');
   const flash        = document.getElementById('flash');
+  const fadeBlack    = document.getElementById('fade-black');
   const layerShocked = document.getElementById('layer-shocked');
   const layerSalute  = document.getElementById('layer-salute');
   const layerBack    = document.getElementById('layer-back');
@@ -264,8 +262,6 @@
   const scanlines    = document.getElementById('scanlines');
   const vignette     = document.getElementById('vignette');
   const textOverlay  = document.getElementById('text-overlay');
-  const turb         = document.getElementById('turb');
-  const dispMap      = document.getElementById('dispMap');
   const body         = document.body;
 
   function fade(el, to, ms) {
@@ -273,47 +269,25 @@
     el.style.opacity = to;
   }
 
-  // Warp morph: distorts outgoing image with turbulence displacement
-  // while ingoing image is already visible underneath
-  function warpMorph(outLayer, duration, onDone) {
-    let start = null;
-    const peakAt = 0.4; // displacement peaks at 40% through
-
-    outLayer.querySelector('img').style.filter = 'url(#warp-filter)';
-
-    function step(ts) {
-      if (!start) start = ts;
-      const t = Math.min((ts - start) / duration, 1);
-
-      // Bell curve for displacement — rises then falls
-      const bell = t < peakAt
-        ? t / peakAt
-        : 1 - ((t - peakAt) / (1 - peakAt));
-
-      const scale = bell * 140;
-      dispMap.setAttribute('scale', scale);
-
-      // Turbulence frequency shifts — more organic feel
-      const freq = 0.012 + bell * 0.045;
-      turb.setAttribute('baseFrequency', `${freq} ${(freq * 0.7).toFixed(4)}`);
-
-      // Outgoing fades out starting halfway through
-      if (t > 0.45) {
-        outLayer.style.opacity = Math.max(0, 1 - ((t - 0.45) / 0.55));
+  // Fade to black, swap image, fade back in
+  function fadeToBlack(hideLayer, showLayer, duration, onDone, showFlag) {
+    const half = duration / 2;
+    // Fade to black
+    fade(fadeBlack, 1, half);
+    setTimeout(() => {
+      // Swap layers while black
+      hideLayer.style.opacity = '0';
+      if (showFlag) {
+        flagVideo.style.transition = 'none';
+        flagVideo.style.opacity = '1';
       }
-
-      if (t < 1) {
-        requestAnimationFrame(step);
-      } else {
-        outLayer.style.opacity = '0';
-        outLayer.querySelector('img').style.filter = '';
-        dispMap.setAttribute('scale', 0);
-        turb.setAttribute('baseFrequency', '0.012 0.012');
+      showLayer.style.opacity = '1';
+      // Fade back in
+      fade(fadeBlack, 0, half);
+      setTimeout(() => {
         if (onDone) onDone();
-      }
-    }
-
-    requestAnimationFrame(step);
+      }, half);
+    }, half);
   }
 
   // ── MAIN TIMELINE ──
@@ -350,32 +324,28 @@
       fade(vignette, 1, 900);
     }, 400);
 
-    // 7. Hold on shocked, then WARP → salute
+    // 7. Hold on shocked, then fade-to-black → salute
     setTimeout(() => {
-      layerSalute.style.opacity = '1'; // visible underneath before warp starts
-      warpMorph(layerShocked, 1800, () => {
+      fadeToBlack(layerShocked, layerSalute, 1400, () => {
 
-        // 8. Hold on salute, then WARP → back + flag
+        // 8. Hold on salute, then fade-to-black → back + flag
         setTimeout(() => {
-          // Fade flag video in, reveal back layer underneath salute
-          fade(flagVideo, 1, 400);
-          layerBack.style.opacity = '1';
+          fadeToBlack(layerSalute, layerBack, 1400, () => {
 
-          warpMorph(layerSalute, 1800, () => {
-
-            // 9. Final state — CT-Back + flag — fade in title
+            // 9. Title fades in
             setTimeout(() => {
               textOverlay.style.transition = 'opacity 0.7s ease, bottom 0.7s ease';
               textOverlay.style.opacity = '1';
               textOverlay.style.bottom = '6vh';
-            }, 300);
+            }, 400);
 
-          });
-        }, 2800); // hold on salute for 2.8s
+          }, true); // true = show flag video
+        }, 2800);
+
       });
-    }, 2200); // hold on shocked for 2.2s
+    }, 2200);
 
-  }, 3500); // 3.5s black screen
+  }, 3500);
 </script>
 </body>
 </html>

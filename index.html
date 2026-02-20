@@ -304,7 +304,7 @@
   <h1 id="activate-title">ACTIVATE CYBERTRUMP</h1>
   <div id="trump-click-wrap">
     <!-- REPLACE src WITH YOUR REGULAR TRUMP IMAGE -->
-    <img id="trump-click" src="regular-trump.png" alt="Trump">
+    <img id="trump-click" src="trump.jpg" alt="Trump">
     <p id="click-hint">[ CLICK TO ACTIVATE ]</p>
   </div>
 </div>
@@ -347,8 +347,9 @@
   <p>MAKE AMERICA GREAT AGAIN</p>
 </div>
 
-<audio id="anthem" src="anthem.ogg" preload="auto"></audio>
-<audio id="eagle"  src="eagle.mp3"  preload="auto"></audio>
+<audio id="anthem"    src="anthem.ogg"    preload="auto"></audio>
+<audio id="eagle"     src="eagle.mp3"     preload="auto"></audio>
+<audio id="vineboom"  src="jumpscare.mp3"  preload="auto"></audio>
 
 <script>
   const activateScreen = document.getElementById('activate-screen');
@@ -366,6 +367,7 @@
   const textOverlay    = document.getElementById('text-overlay');
   const anthem         = document.getElementById('anthem');
   const eagle          = document.getElementById('eagle');
+  const vineboom       = document.getElementById('vineboom');
   const body           = document.body;
 
   function fade(el, to, ms) {
@@ -386,8 +388,12 @@
     }, interval);
   }
 
-  anthem.addEventListener('ended', () => {
-    eagle.play().catch(() => {});
+  // Eagle caw plays 2 seconds before anthem ends
+  anthem.addEventListener('timeupdate', () => {
+    if (anthem.duration && anthem.currentTime >= anthem.duration - 2 && !eagle._triggered) {
+      eagle._triggered = true;
+      eagle.play().catch(() => {});
+    }
   });
 
   function fadeToBlack(hideLayer, showLayer, duration, onDone, showFlag) {
@@ -431,10 +437,11 @@
       fade(flash, 1, 50);
       setTimeout(() => fade(flash, 0, 150), 80);
 
-      // 2. Kill black screen, slam shocked in
+      // 2. Kill black screen, slam shocked in + vine boom
       blackscreen.style.transition = 'opacity 0.05s';
       blackscreen.style.opacity = '0';
       layerShocked.style.opacity = '1';
+      vineboom.play().catch(() => {});
 
       // 3. Shake
       body.style.animation = 'shake 0.5s ease forwards';

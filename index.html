@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBERTRUMP</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Black+Han+Sans&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    cursor: none;
+  }
+
+  #blackscreen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #cursor-text {
+    font-family: 'Share Tech Mono', monospace;
+    color: #1a1a1a;
+    font-size: 13px;
+    letter-spacing: 4px;
+    opacity: 0;
+    animation: fadeInText 1s ease forwards 1.5s;
+    user-select: none;
+  }
+
+  @keyframes fadeInText {
+    to { opacity: 1; color: #1f1f1f; }
+  }
+
+  #jumpscare {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  #jumpscare img {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    filter: contrast(1.3) saturate(0.8);
+  }
+
+  /* FLASH overlay */
+  #flash {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* RED ALERT lines */
+  #scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,0,0,0.03) 2px,
+      rgba(255,0,0,0.03) 4px
+    );
+    z-index: 6;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  #text-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 8;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #text-overlay h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(60px, 15vw, 180px);
+    color: #ff0000;
+    text-shadow:
+      0 0 20px #ff0000,
+      0 0 60px #ff0000,
+      4px 4px 0 #000,
+      -4px -4px 0 #000;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  #text-overlay p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(12px, 2vw, 18px);
+    color: #fff;
+    letter-spacing: 6px;
+    margin-top: 10px;
+    text-shadow: 0 0 10px #ff0000;
+  }
+
+  /* Shake keyframe */
+  @keyframes shake {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    10%  { transform: translate(-30px, -20px) rotate(-2deg); }
+    20%  { transform: translate(30px, 20px) rotate(2deg); }
+    30%  { transform: translate(-25px, 25px) rotate(-1deg); }
+    40%  { transform: translate(25px, -25px) rotate(1deg); }
+    50%  { transform: translate(-15px, 15px) rotate(-2deg); }
+    60%  { transform: translate(15px, -10px) rotate(2deg); }
+    70%  { transform: translate(-10px, 10px) rotate(-1deg); }
+    80%  { transform: translate(10px, -5px) rotate(1deg); }
+    90%  { transform: translate(-5px, 5px) rotate(0deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+  }
+
+  @keyframes glitch {
+    0%   { clip-path: inset(0 0 95% 0); transform: translate(-10px, 0); }
+    20%  { clip-path: inset(30% 0 50% 0); transform: translate(10px, 0); }
+    40%  { clip-path: inset(60% 0 20% 0); transform: translate(-5px, 0); }
+    60%  { clip-path: inset(10% 0 80% 0); transform: translate(5px, 0); }
+    80%  { clip-path: inset(80% 0 5% 0); transform: translate(-10px, 0); }
+    100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
+  }
+
+  #glitch-img {
+    position: fixed;
+    inset: 0;
+    z-index: 7;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #glitch-img img {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    filter: hue-rotate(90deg) contrast(2);
+  }
+
+  .shaking {
+    animation: shake 0.5s ease forwards;
+  }
+
+  /* after jumpscare settles */
+  #vignette {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, #000 100%);
+    z-index: 9;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div id="blackscreen">
+  <span id="cursor-text">· · ·</span>
+</div>
+
+<div id="flash"></div>
+
+<div id="jumpscare">
+  <!-- REPLACE src WITH YOUR IMAGE -->
+  <img src="output-0.png" alt="CYBERTRUMP" id="main-img">
+</div>
+
+<div id="glitch-img">
+  <img src="output-0.png" alt="">
+</div>
+
+<div id="scanlines"></div>
+<div id="vignette"></div>
+
+<div id="text-overlay">
+  <h1>CYBERTRUMP</h1>
+  <p>MAKE AMERICA GREAT AGAIN</p>
+</div>
+
+<script>
+  const blackscreen = document.getElementById('blackscreen');
+  const flash = document.getElementById('flash');
+  const jumpscare = document.getElementById('jumpscare');
+  const glitchImg = document.getElementById('glitch-img');
+  const scanlines = document.getElementById('scanlines');
+  const vignette = document.getElementById('vignette');
+  const textOverlay = document.getElementById('text-overlay');
+  const body = document.body;
+
+  // Timeline
+  setTimeout(() => {
+    // 1. Flash white
+    flash.style.transition = 'opacity 0.05s';
+    flash.style.opacity = '1';
+
+    setTimeout(() => {
+      flash.style.transition = 'opacity 0.15s';
+      flash.style.opacity = '0';
+    }, 80);
+
+    // 2. Slam image in
+    blackscreen.style.transition = 'opacity 0.05s';
+    blackscreen.style.opacity = '0';
+    setTimeout(() => blackscreen.style.display = 'none', 100);
+
+    jumpscare.style.opacity = '1';
+
+    // 3. Shake the screen
+    body.classList.add('shaking');
+    body.style.animation = 'shake 0.5s ease forwards';
+    setTimeout(() => body.style.animation = '', 500);
+
+    // 4. Glitch flash
+    glitchImg.style.opacity = '1';
+    glitchImg.style.animation = 'glitch 0.3s steps(1) forwards';
+    setTimeout(() => {
+      glitchImg.style.opacity = '0';
+      glitchImg.style.animation = '';
+    }, 300);
+
+    // 5. Second flash
+    setTimeout(() => {
+      flash.style.transition = 'opacity 0.03s';
+      flash.style.opacity = '0.7';
+      setTimeout(() => {
+        flash.style.transition = 'opacity 0.2s';
+        flash.style.opacity = '0';
+      }, 50);
+    }, 150);
+
+    // 6. Scanlines fade in
+    setTimeout(() => {
+      scanlines.style.transition = 'opacity 0.4s';
+      scanlines.style.opacity = '1';
+      vignette.style.transition = 'opacity 0.8s';
+      vignette.style.opacity = '1';
+    }, 400);
+
+    // 7. Title slams in
+    setTimeout(() => {
+      textOverlay.style.transition = 'opacity 0.1s';
+      textOverlay.style.opacity = '1';
+      textOverlay.style.transform = 'translate(-50%, -50%) scale(1.3)';
+      setTimeout(() => {
+        textOverlay.style.transition = 'transform 0.2s ease';
+        textOverlay.style.transform = 'translate(-50%, -50%) scale(1)';
+      }, 100);
+    }, 600);
+
+  }, 3500); // wait 3.5 seconds on black screen
+</script>
+</body>
+</html>

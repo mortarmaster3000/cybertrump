@@ -503,10 +503,11 @@
     fade(textOverlay, 0, 300);
 
     // Crossfade CT-Back → CT-Hand directly, flag untouched underneath
-    layerSalute.style.opacity = '1';
+    layerSalute.style.transition = 'opacity 1600ms ease';
     layerSalute.style.zIndex = '4';
-    layerBack.style.transition = 'opacity 800ms ease';
+    layerBack.style.transition = 'opacity 1600ms ease';
     layerBack.style.opacity = '0';
+    setTimeout(() => { layerSalute.style.opacity = '1'; }, 50);
 
     // Eagle plays as salute fades in
     eagle.play().catch(() => {});

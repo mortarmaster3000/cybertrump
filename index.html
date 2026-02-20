@@ -499,21 +499,22 @@
   function triggerEnding() {
     const half = 400; // fast fade — 800ms total
 
-    // Fade text overlay out immediately and quickly (#2)
+    // Fade to black, swap, fade back in — same as other transitions
     fade(textOverlay, 0, 300);
-
-    // Crossfade CT-Back → CT-Hand directly, flag untouched underneath
-    layerSalute.style.transition = 'opacity 1600ms ease';
-    layerSalute.style.zIndex = '4';
-    layerBack.style.transition = 'opacity 1600ms ease';
-    layerBack.style.opacity = '0';
-    setTimeout(() => { layerSalute.style.opacity = '1'; }, 50);
-
-    // Eagle plays as salute fades in
-    eagle.play().catch(() => {});
-
-    // After eagle finishes → fade to final title
+    fade(fadeBlack, 1, half);
     setTimeout(() => {
+      layerBack.style.transition = 'none';
+      layerBack.style.opacity = '0';
+      layerSalute.style.transition = 'none';
+      layerSalute.style.opacity = '1';
+      fade(fadeBlack, 0, half);
+
+      // Eagle fires as image appears
+      setTimeout(() => {
+        eagle.play().catch(() => {});
+
+        // After eagle → fade to final title
+        setTimeout(() => {
         fade(fadeBlack, 1, half);
         setTimeout(() => {
           layerSalute.style.opacity = '0';
@@ -532,8 +533,11 @@
           }, 1400);
 
         }, half);
-      }, 3500); // eagle is ~3.5s effective
+        }, 3500);
 
+      }, half); // eagle fires after fade-in completes
+
+    }, half); // swap happens at midpoint of fade
   }
 
   function startSequence() {

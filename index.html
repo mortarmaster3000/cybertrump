@@ -298,7 +298,7 @@
 
   #final-h1 {
     font-family: 'Black Han Sans', sans-serif;
-    font-size: clamp(50px, 11vw, 150px);
+    font-size: clamp(55px, 13vw, 185px);
     color: #ff0000;
     text-shadow:
       0 0 30px #ff0000,
@@ -505,21 +505,22 @@
     // Fade to black
     fade(fadeBlack, 1, half);
     setTimeout(() => {
-      // While black: hide back + flag, show salute
+      // While black: hide back, keep flag, show salute
       layerBack.style.opacity = '0';
-      flagVideo.style.opacity = '0';
       layerSalute.style.opacity = '1';
+      // flag stays on the whole time
 
       // Fade back in — eagle plays exactly as image appears (#3)
       fade(fadeBlack, 0, half);
       eagle.play().catch(() => {});
 
-      // After eagle finishes (5s) → fade to final title
+      // After eagle finishes → fade to final title (flag keeps playing)
       setTimeout(() => {
         fade(fadeBlack, 1, half);
         setTimeout(() => {
           layerSalute.style.opacity = '0';
-          // Show final screen
+          // flag stays — final screen sits on top of it
+          finalScreen.style.background = 'transparent'; // let flag show through
           finalScreen.style.opacity = '1';
           finalScreen.style.pointerEvents = 'auto';
           fade(fadeBlack, 0, half);
@@ -533,7 +534,7 @@
           }, 1400);
 
         }, half);
-      }, 5000);
+      }, 3500); // eagle is ~3.5s effective
 
     }, half);
   }

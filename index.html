@@ -250,6 +250,9 @@
   <p>MAKE AMERICA GREAT AGAIN</p>
 </div>
 
+<audio id="anthem" src="anthem.ogg" preload="auto"></audio>
+<audio id="eagle"  src="eagle.mp3"  preload="auto"></audio>
+
 <script>
   const blackscreen  = document.getElementById('blackscreen');
   const flash        = document.getElementById('flash');
@@ -289,6 +292,28 @@
       }, half);
     }, half);
   }
+
+  const anthem = document.getElementById('anthem');
+  const eagle  = document.getElementById('eagle');
+
+  // Gradually fade anthem in over `duration` ms
+  function fadeInAudio(audio, duration) {
+    audio.volume = 0;
+    audio.play().catch(() => {});
+    const steps = 60;
+    const interval = duration / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      audio.volume = Math.min(step / steps, 1);
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+  }
+
+  // Eagle caw plays once anthem finishes
+  anthem.addEventListener('ended', () => {
+    eagle.play().catch(() => {});
+  });
 
   // ── MAIN TIMELINE ──
   setTimeout(() => {

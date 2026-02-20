@@ -72,9 +72,9 @@
   }
 
   #trump-click:hover {
-    filter: contrast(1.5) brightness(1) saturate(0.6);
+    filter: contrast(1.5) brightness(1) saturate(0.6) drop-shadow(0 0 18px #ff0000);
     transition: 750ms;
-    transform: scale(1.04) ;
+    transform: scale(1.04);
   }
 
   #trump-click:active {
@@ -96,7 +96,7 @@
   }
 
   /* ══════════════════════════════
-     BLACK WAIT SCREEN (after click)
+     BLACK WAIT SCREEN
   ══════════════════════════════ */
   #blackscreen {
     position: fixed;
@@ -217,7 +217,7 @@
   }
 
   /* ══════════════════════════════
-     GLITCH BURST
+     GLITCH BURST (jumpscare)
   ══════════════════════════════ */
   #glitch-img {
     position: fixed;
@@ -246,7 +246,7 @@
   }
 
   /* ══════════════════════════════
-     TITLE TEXT
+     CT-BACK BOTTOM TITLE
   ══════════════════════════════ */
   #text-overlay {
     position: fixed;
@@ -281,20 +281,94 @@
   }
 
   /* ══════════════════════════════
-     SCREEN SHAKE
+     FINAL TITLE SCREEN
   ══════════════════════════════ */
-  @keyframes shake {
-    0%   { transform: translate(0,0) rotate(0deg); }
-    10%  { transform: translate(-30px,-20px) rotate(-2deg); }
-    20%  { transform: translate(30px,20px) rotate(2deg); }
-    30%  { transform: translate(-25px,25px) rotate(-1.5deg); }
-    40%  { transform: translate(25px,-25px) rotate(1.5deg); }
-    50%  { transform: translate(-15px,15px) rotate(-2deg); }
-    60%  { transform: translate(15px,-10px) rotate(2deg); }
-    70%  { transform: translate(-10px,10px) rotate(-1deg); }
-    80%  { transform: translate(10px,-5px) rotate(1deg); }
-    90%  { transform: translate(-5px,5px) rotate(0deg); }
-    100% { transform: translate(0,0) rotate(0deg); }
+  #final-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #final-h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(60px, 16vw, 220px);
+    color: #ff0000;
+    text-shadow:
+      0 0 30px #ff0000,
+      0 0 80px #ff000077,
+      4px 4px 0 #000,
+      -4px -4px 0 #000;
+    letter-spacing: -2px;
+    line-height: 1;
+    text-align: center;
+    position: relative;
+  }
+
+  #final-p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(10px, 1.8vw, 20px);
+    color: #fff;
+    letter-spacing: 8px;
+    margin-top: 14px;
+    text-shadow: 0 0 14px #ff0000;
+    text-align: center;
+    position: relative;
+  }
+
+  /* glitch layers — pseudo-elements offset for RGB split feel */
+  #final-h1::before,
+  #final-h1::after {
+    content: 'CYBERTRUMP';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  #final-h1::before { color: #0ff; left: 3px; }
+  #final-h1::after  { color: #f0f; left: -3px; }
+
+  /* glitch on */
+  #final-h1.glitching::before,
+  #final-h1.glitching::after {
+    opacity: 0.7;
+    animation: rgbSplit 0.07s steps(1) infinite;
+  }
+  #final-h1.glitching {
+    animation: mainGlitch 0.07s steps(1) infinite;
+  }
+
+  @keyframes mainGlitch {
+    0%   { clip-path: inset(0 0 90% 0); transform: translate(-6px, 0); }
+    20%  { clip-path: inset(35% 0 45% 0); transform: translate(6px, 0); }
+    40%  { clip-path: inset(70% 0 10% 0); transform: translate(-3px, 0); }
+    60%  { clip-path: inset(15% 0 65% 0); transform: translate(3px, 0); }
+    80%  { clip-path: inset(50% 0 30% 0); transform: translate(-5px, 0); }
+    100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
+  }
+
+  @keyframes rgbSplit {
+    0%   { clip-path: inset(20% 0 60% 0); transform: translate(8px, 0); }
+    33%  { clip-path: inset(60% 0 15% 0); transform: translate(-8px, 0); }
+    66%  { clip-path: inset(5% 0 80% 0);  transform: translate(4px, 0); }
+    100% { clip-path: inset(40% 0 40% 0); transform: translate(-4px, 0); }
+  }
+
+  /* scanlines on final screen */
+  #final-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent, transparent 3px,
+      rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px
+    );
+    pointer-events: none;
   }
 </style>
 </head>
@@ -304,7 +378,6 @@
 <div id="activate-screen">
   <h1 id="activate-title">ACTIVATE CYBERTRUMP</h1>
   <div id="trump-click-wrap">
-    <!-- REPLACE src WITH YOUR REGULAR TRUMP IMAGE -->
     <img id="trump-click" src="trump.png" alt="Trump">
     <p id="click-hint">[ CLICK TO ACTIVATE ]</p>
   </div>
@@ -343,14 +416,22 @@
 <div id="scanlines"></div>
 <div id="vignette"></div>
 
+<!-- CT-Back bottom title -->
 <div id="text-overlay">
   <h1>CYBERTRUMP</h1>
   <p>MAKE AMERICA GREAT AGAIN</p>
 </div>
 
-<audio id="anthem"    src="anthem.ogg"    preload="auto"></audio>
-<audio id="eagle"     src="eagle.mp3"     preload="auto"></audio>
-<audio id="vineboom"  src="jumpscare.mp3"  preload="auto"></audio>
+<!-- Final full-screen title -->
+<div id="final-screen">
+  <div id="final-scanlines"></div>
+  <h1 id="final-h1">CYBERTRUMP</h1>
+  <p id="final-p">MAKE AMERICA GREAT AGAIN</p>
+</div>
+
+<audio id="anthem"     src="anthem.ogg"     preload="auto"></audio>
+<audio id="eagle"      src="eagle.mp3"       preload="auto"></audio>
+<audio id="jumpscare"  src="jumpscare.mp3"   preload="auto"></audio>
 
 <script>
   const activateScreen = document.getElementById('activate-screen');
@@ -366,9 +447,12 @@
   const scanlines      = document.getElementById('scanlines');
   const vignette       = document.getElementById('vignette');
   const textOverlay    = document.getElementById('text-overlay');
+  const finalScreen    = document.getElementById('final-screen');
+  const finalH1        = document.getElementById('final-h1');
+  const finalP         = document.getElementById('final-p');
   const anthem         = document.getElementById('anthem');
   const eagle          = document.getElementById('eagle');
-  const vineboom       = document.getElementById('vineboom');
+  const jumpscare      = document.getElementById('jumpscare');
   const body           = document.body;
 
   function fade(el, to, ms) {
@@ -389,41 +473,69 @@
     }, interval);
   }
 
-  // Eagle caw plays 2 seconds before anthem ends
-  anthem.addEventListener('timeupdate', () => {
-    if (anthem.duration && anthem.currentTime >= anthem.duration - 2 && !eagle._triggered) {
-      eagle._triggered = true;
-      eagle.play().catch(() => {});
-    }
-  });
-
-  function fadeToBlack(hideLayer, showLayer, duration, onDone, showFlag) {
+  function fadeToBlack(hideLayer, showLayer, duration, onDone, showFlag, hideFlag) {
     const half = duration / 2;
     fade(fadeBlack, 1, half);
     setTimeout(() => {
-      hideLayer.style.opacity = '0';
-      if (showFlag) {
-        flagVideo.style.transition = 'none';
-        flagVideo.style.opacity = '1';
-      }
-      showLayer.style.opacity = '1';
+      if (hideLayer) hideLayer.style.opacity = '0';
+      if (hideFlag)  { flagVideo.style.transition = 'none'; flagVideo.style.opacity = '0'; }
+      if (showFlag)  { flagVideo.style.transition = 'none'; flagVideo.style.opacity = '1'; }
+      if (showLayer) showLayer.style.opacity = '1';
       fade(fadeBlack, 0, half);
       setTimeout(() => { if (onDone) onDone(); }, half);
     }, half);
   }
 
+  // ── ANTHEM TIMING: triggers fade to salute 2s before anthem ends ──
+  anthem.addEventListener('timeupdate', () => {
+    if (!anthem._eagleTriggered && anthem.duration &&
+        anthem.currentTime >= anthem.duration - 2) {
+      anthem._eagleTriggered = true;
+
+      // Fade to black, hide back layer + flag, show salute
+      fadeToBlack(layerBack, layerSalute, 800, () => {
+        // Eagle caw plays as salute appears
+        eagle.play().catch(() => {});
+
+        // Also hide the bottom text overlay
+        fade(textOverlay, 0, 400);
+        // Hide flag
+        flagVideo.style.opacity = '0';
+
+        // After eagle finishes (5s), fade to final title screen
+        setTimeout(() => {
+          fadeToBlack(layerSalute, null, 1000, () => {
+            // Bring up final screen
+            finalScreen.style.opacity = '1';
+            finalScreen.style.pointerEvents = 'auto';
+
+            // Glitch for ~1.2s then settle
+            finalH1.classList.add('glitching');
+            setTimeout(() => {
+              finalH1.classList.remove('glitching');
+              // Settle: fade subtitle in clean
+              finalP.style.transition = 'opacity 1s ease';
+              finalP.style.opacity = '0';
+              setTimeout(() => {
+                finalP.style.opacity = '1';
+              }, 200);
+            }, 1200);
+          }, false, true); // hideFlag=true
+        }, 5000); // eagle is 5s long
+
+      }, false, true); // showFlag=false, hideFlag=true — flag fades during transition
+    }
+  });
+
   function startSequence() {
-    // Fade out activate screen
     activateScreen.style.transition = 'opacity 0.4s ease';
     activateScreen.style.opacity = '0';
     setTimeout(() => activateScreen.style.display = 'none', 400);
 
-    // Show black wait screen with dots
     blackscreen.style.transition = 'none';
     blackscreen.style.opacity = '1';
     blackscreen.style.pointerEvents = 'none';
 
-    // Animate the dots in
     const cursorText = document.getElementById('cursor-text');
     cursorText.style.transition = 'opacity 1s ease, color 1s ease';
     setTimeout(() => {
@@ -431,18 +543,17 @@
       cursorText.style.color = '#222';
     }, 300);
 
-    // ── MAIN TIMELINE (starts after 3.5s on black) ──
     setTimeout(() => {
 
       // 1. White flash
       fade(flash, 1, 50);
       setTimeout(() => fade(flash, 0, 150), 80);
 
-      // 2. Kill black screen, slam shocked in + vine boom
+      // 2. Slam shocked in + jumpscare sound
       blackscreen.style.transition = 'opacity 0.05s';
       blackscreen.style.opacity = '0';
       layerShocked.style.opacity = '1';
-      vineboom.play().catch(() => {});
+      jumpscare.play().catch(() => {});
 
       // 3. Shake
       body.style.animation = 'shake 0.5s ease forwards';
@@ -465,34 +576,47 @@
         fade(vignette, 1, 900);
       }, 400);
 
-      // 7. Hold on shocked → fade to black → salute
+      // 7. Hold on shocked → fade to black → CT-Back + flag
       setTimeout(() => {
-        fadeToBlack(layerShocked, layerSalute, 1400, () => {
+        fadeToBlack(layerShocked, layerBack, 1400, () => {
 
-          // 8. Hold on salute → fade to black → back + flag
+          // Anthem fades in over 2s
+          fadeInAudio(anthem, 2000);
+
+          // Title fades in at bottom
           setTimeout(() => {
-            fadeToBlack(layerSalute, layerBack, 1400, () => {
+            textOverlay.style.transition = 'opacity 1.6s ease, bottom 1.6s ease';
+            textOverlay.style.opacity = '1';
+            textOverlay.style.bottom = '6vh';
+          }, 400);
 
-              // Anthem fades in over 2s (fully up when text arrives)
-              fadeInAudio(anthem, 2000);
+          // Anthem timeupdate listener handles everything after this
 
-              // 9. Title fades in
-              setTimeout(() => {
-                textOverlay.style.transition = 'opacity 1.6s ease, bottom 1.6s ease';
-                textOverlay.style.opacity = '1';
-                textOverlay.style.bottom = '6vh';
-              }, 400);
-
-            }, true);
-          }, 2800);
-
-        });
+        }, true); // showFlag = true
       }, 2200);
 
     }, 3500);
   }
 
-  // Click anywhere on the trump image wrap to start
+  // shake keyframes need to be in CSS but body.style.animation refs them
+  const shakeStyle = document.createElement('style');
+  shakeStyle.textContent = `
+    @keyframes shake {
+      0%   { transform: translate(0,0) rotate(0deg); }
+      10%  { transform: translate(-30px,-20px) rotate(-2deg); }
+      20%  { transform: translate(30px,20px) rotate(2deg); }
+      30%  { transform: translate(-25px,25px) rotate(-1.5deg); }
+      40%  { transform: translate(25px,-25px) rotate(1.5deg); }
+      50%  { transform: translate(-15px,15px) rotate(-2deg); }
+      60%  { transform: translate(15px,-10px) rotate(2deg); }
+      70%  { transform: translate(-10px,10px) rotate(-1deg); }
+      80%  { transform: translate(10px,-5px) rotate(1deg); }
+      90%  { transform: translate(-5px,5px) rotate(0deg); }
+      100% { transform: translate(0,0) rotate(0deg); }
+    }
+  `;
+  document.head.appendChild(shakeStyle);
+
   trumpClick.addEventListener('click', startSequence);
 </script>
 </body>

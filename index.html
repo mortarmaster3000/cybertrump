@@ -14,14 +14,16 @@
     overflow: hidden;
     width: 100vw;
     height: 100vh;
-    cursor: none;
   }
 
+  #svg-filters { position: absolute; width: 0; height: 0; }
+
+  /* ── black opening screen ── */
   #blackscreen {
     position: fixed;
     inset: 0;
     background: #000;
-    z-index: 10;
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -36,143 +38,182 @@
     animation: fadeInText 1s ease forwards 1.5s;
     user-select: none;
   }
+  @keyframes fadeInText { to { opacity: 1; color: #222; } }
 
-  @keyframes fadeInText {
-    to { opacity: 1; color: #1f1f1f; }
-  }
-
-  #jumpscare {
+  /* ── image layers ── */
+  .img-layer {
     position: fixed;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
     opacity: 0;
-    pointer-events: none;
-    z-index: 5;
   }
 
-  #jumpscare img {
-    width: 100vw;
+  .img-layer img {
     height: 100vh;
-    object-fit: cover;
-    filter: contrast(1.3) saturate(0.8);
+    width: auto;
+    max-width: 100vw;
+    object-fit: contain;
+    display: block;
+    position: relative;
+    z-index: 2;
   }
 
-  /* FLASH overlay */
+  /* red side glow for the black bars */
+  .img-layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 35% 80% at 0% 50%,   rgba(160,0,0,0.22) 0%, transparent 70%),
+      radial-gradient(ellipse 35% 80% at 100% 50%,  rgba(160,0,0,0.22) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #layer-shocked { z-index: 5; }
+  #layer-salute  { z-index: 4; }
+  #layer-back    { z-index: 3; }
+
+  /* ── flag video ── */
+  #flag-video {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  #flag-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── flash ── */
   #flash {
     position: fixed;
     inset: 0;
     background: #fff;
-    z-index: 20;
+    z-index: 200;
     opacity: 0;
     pointer-events: none;
   }
 
-  /* RED ALERT lines */
+  /* ── scanlines ── */
   #scanlines {
     position: fixed;
     inset: 0;
     background: repeating-linear-gradient(
       0deg,
-      transparent,
-      transparent 2px,
-      rgba(255,0,0,0.03) 2px,
-      rgba(255,0,0,0.03) 4px
+      transparent, transparent 2px,
+      rgba(255,0,0,0.04) 2px, rgba(255,0,0,0.04) 4px
     );
     z-index: 6;
     pointer-events: none;
     opacity: 0;
   }
 
-  #text-overlay {
+  /* ── vignette ── */
+  #vignette {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 35%, #000 100%);
     z-index: 8;
-    text-align: center;
     opacity: 0;
     pointer-events: none;
   }
 
-  #text-overlay h1 {
-    font-family: 'Black Han Sans', sans-serif;
-    font-size: clamp(60px, 15vw, 180px);
-    color: #ff0000;
-    text-shadow:
-      0 0 20px #ff0000,
-      0 0 60px #ff0000,
-      4px 4px 0 #000,
-      -4px -4px 0 #000;
-    letter-spacing: -2px;
-    line-height: 1;
-  }
-
-  #text-overlay p {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(12px, 2vw, 18px);
-    color: #fff;
-    letter-spacing: 6px;
-    margin-top: 10px;
-    text-shadow: 0 0 10px #ff0000;
-  }
-
-  /* Shake keyframe */
-  @keyframes shake {
-    0%   { transform: translate(0, 0) rotate(0deg); }
-    10%  { transform: translate(-30px, -20px) rotate(-2deg); }
-    20%  { transform: translate(30px, 20px) rotate(2deg); }
-    30%  { transform: translate(-25px, 25px) rotate(-1deg); }
-    40%  { transform: translate(25px, -25px) rotate(1deg); }
-    50%  { transform: translate(-15px, 15px) rotate(-2deg); }
-    60%  { transform: translate(15px, -10px) rotate(2deg); }
-    70%  { transform: translate(-10px, 10px) rotate(-1deg); }
-    80%  { transform: translate(10px, -5px) rotate(1deg); }
-    90%  { transform: translate(-5px, 5px) rotate(0deg); }
-    100% { transform: translate(0, 0) rotate(0deg); }
-  }
-
-  @keyframes glitch {
-    0%   { clip-path: inset(0 0 95% 0); transform: translate(-10px, 0); }
-    20%  { clip-path: inset(30% 0 50% 0); transform: translate(10px, 0); }
-    40%  { clip-path: inset(60% 0 20% 0); transform: translate(-5px, 0); }
-    60%  { clip-path: inset(10% 0 80% 0); transform: translate(5px, 0); }
-    80%  { clip-path: inset(80% 0 5% 0); transform: translate(-10px, 0); }
-    100% { clip-path: inset(0 0 0 0); transform: translate(0, 0); }
-  }
-
+  /* ── glitch burst ── */
   #glitch-img {
     position: fixed;
     inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 7;
     opacity: 0;
     pointer-events: none;
   }
-
   #glitch-img img {
-    width: 100vw;
     height: 100vh;
-    object-fit: cover;
-    filter: hue-rotate(90deg) contrast(2);
+    width: auto;
+    max-width: 100vw;
+    object-fit: contain;
+    filter: hue-rotate(90deg) contrast(2.5) saturate(3);
+  }
+  @keyframes glitch {
+    0%   { clip-path: inset(0 0 92% 0);   transform: translate(-12px, 0); }
+    20%  { clip-path: inset(25% 0 55% 0); transform: translate(12px, 0); }
+    40%  { clip-path: inset(60% 0 18% 0); transform: translate(-6px, 0); }
+    60%  { clip-path: inset(8% 0 78% 0);  transform: translate(6px, 0); }
+    80%  { clip-path: inset(78% 0 4% 0);  transform: translate(-12px, 0); }
+    100% { clip-path: inset(0 0 0 0);     transform: translate(0, 0); }
   }
 
-  .shaking {
-    animation: shake 0.5s ease forwards;
-  }
-
-  /* after jumpscare settles */
-  #vignette {
+  /* ── title ── */
+  #text-overlay {
     position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, transparent 40%, #000 100%);
+    bottom: 4vh;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 9;
+    text-align: center;
     opacity: 0;
     pointer-events: none;
+    white-space: nowrap;
+  }
+  #text-overlay h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(44px, 9vw, 130px);
+    color: #ff0000;
+    text-shadow:
+      0 0 20px #ff0000,
+      0 0 60px #ff000077,
+      3px 3px 0 #000,
+      -3px -3px 0 #000;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+  #text-overlay p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(10px, 1.5vw, 15px);
+    color: #fff;
+    letter-spacing: 7px;
+    margin-top: 8px;
+    text-shadow: 0 0 12px #ff0000;
+  }
+
+  /* ── screen shake ── */
+  @keyframes shake {
+    0%   { transform: translate(0,0) rotate(0deg); }
+    10%  { transform: translate(-30px,-20px) rotate(-2deg); }
+    20%  { transform: translate(30px,20px) rotate(2deg); }
+    30%  { transform: translate(-25px,25px) rotate(-1.5deg); }
+    40%  { transform: translate(25px,-25px) rotate(1.5deg); }
+    50%  { transform: translate(-15px,15px) rotate(-2deg); }
+    60%  { transform: translate(15px,-10px) rotate(2deg); }
+    70%  { transform: translate(-10px,10px) rotate(-1deg); }
+    80%  { transform: translate(10px,-5px) rotate(1deg); }
+    90%  { transform: translate(-5px,5px) rotate(0deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
   }
 </style>
 </head>
 <body>
+
+<!-- SVG warp filter -->
+<svg id="svg-filters" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="warp-filter" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence id="turb" type="turbulence"
+        baseFrequency="0.012 0.012" numOctaves="3" seed="5" result="noise"/>
+      <feDisplacementMap id="dispMap" in="SourceGraphic" in2="noise"
+        scale="0" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
 
 <div id="blackscreen">
   <span id="cursor-text">· · ·</span>
@@ -180,13 +221,28 @@
 
 <div id="flash"></div>
 
-<div id="jumpscare">
-  <!-- REPLACE src WITH YOUR IMAGE -->
-  <img src="output-0.png" alt="CYBERTRUMP" id="main-img">
+<!-- Flag video sits at the very back -->
+<div id="flag-video">
+  <video autoplay loop muted playsinline>
+    <source src="freestock_1409812.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- Image layers, back to front -->
+<div class="img-layer" id="layer-back">
+  <img src="CT-Back.png" alt="CYBERTRUMP back">
+</div>
+
+<div class="img-layer" id="layer-salute">
+  <img src="CT-Hand.png" alt="CYBERTRUMP salute">
+</div>
+
+<div class="img-layer" id="layer-shocked">
+  <img src="CT-Shocked.png" alt="CYBERTRUMP shocked">
 </div>
 
 <div id="glitch-img">
-  <img src="output-0.png" alt="">
+  <img src="CT-Shocked.png" alt="">
 </div>
 
 <div id="scanlines"></div>
@@ -198,76 +254,128 @@
 </div>
 
 <script>
-  const blackscreen = document.getElementById('blackscreen');
-  const flash = document.getElementById('flash');
-  const jumpscare = document.getElementById('jumpscare');
-  const glitchImg = document.getElementById('glitch-img');
-  const scanlines = document.getElementById('scanlines');
-  const vignette = document.getElementById('vignette');
-  const textOverlay = document.getElementById('text-overlay');
-  const body = document.body;
+  const blackscreen  = document.getElementById('blackscreen');
+  const flash        = document.getElementById('flash');
+  const layerShocked = document.getElementById('layer-shocked');
+  const layerSalute  = document.getElementById('layer-salute');
+  const layerBack    = document.getElementById('layer-back');
+  const flagVideo    = document.getElementById('flag-video');
+  const glitchImg    = document.getElementById('glitch-img');
+  const scanlines    = document.getElementById('scanlines');
+  const vignette     = document.getElementById('vignette');
+  const textOverlay  = document.getElementById('text-overlay');
+  const turb         = document.getElementById('turb');
+  const dispMap      = document.getElementById('dispMap');
+  const body         = document.body;
 
-  // Timeline
+  function fade(el, to, ms) {
+    el.style.transition = ms ? `opacity ${ms}ms ease` : 'none';
+    el.style.opacity = to;
+  }
+
+  // Warp morph: distorts outgoing image with turbulence displacement
+  // while ingoing image is already visible underneath
+  function warpMorph(outLayer, duration, onDone) {
+    let start = null;
+    const peakAt = 0.4; // displacement peaks at 40% through
+
+    outLayer.querySelector('img').style.filter = 'url(#warp-filter)';
+
+    function step(ts) {
+      if (!start) start = ts;
+      const t = Math.min((ts - start) / duration, 1);
+
+      // Bell curve for displacement — rises then falls
+      const bell = t < peakAt
+        ? t / peakAt
+        : 1 - ((t - peakAt) / (1 - peakAt));
+
+      const scale = bell * 140;
+      dispMap.setAttribute('scale', scale);
+
+      // Turbulence frequency shifts — more organic feel
+      const freq = 0.012 + bell * 0.045;
+      turb.setAttribute('baseFrequency', `${freq} ${(freq * 0.7).toFixed(4)}`);
+
+      // Outgoing fades out starting halfway through
+      if (t > 0.45) {
+        outLayer.style.opacity = Math.max(0, 1 - ((t - 0.45) / 0.55));
+      }
+
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        outLayer.style.opacity = '0';
+        outLayer.querySelector('img').style.filter = '';
+        dispMap.setAttribute('scale', 0);
+        turb.setAttribute('baseFrequency', '0.012 0.012');
+        if (onDone) onDone();
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  // ── MAIN TIMELINE ──
   setTimeout(() => {
-    // 1. Flash white
-    flash.style.transition = 'opacity 0.05s';
-    flash.style.opacity = '1';
 
-    setTimeout(() => {
-      flash.style.transition = 'opacity 0.15s';
-      flash.style.opacity = '0';
-    }, 80);
+    // 1. White flash
+    fade(flash, 1, 50);
+    setTimeout(() => fade(flash, 0, 150), 80);
 
-    // 2. Slam image in
+    // 2. Kill black screen, slam shocked in
     blackscreen.style.transition = 'opacity 0.05s';
     blackscreen.style.opacity = '0';
     setTimeout(() => blackscreen.style.display = 'none', 100);
+    layerShocked.style.opacity = '1';
 
-    jumpscare.style.opacity = '1';
-
-    // 3. Shake the screen
-    body.classList.add('shaking');
+    // 3. Shake
     body.style.animation = 'shake 0.5s ease forwards';
     setTimeout(() => body.style.animation = '', 500);
 
-    // 4. Glitch flash
+    // 4. Glitch burst
     glitchImg.style.opacity = '1';
-    glitchImg.style.animation = 'glitch 0.3s steps(1) forwards';
-    setTimeout(() => {
-      glitchImg.style.opacity = '0';
-      glitchImg.style.animation = '';
-    }, 300);
+    glitchImg.style.animation = 'glitch 0.32s steps(1) forwards';
+    setTimeout(() => { glitchImg.style.opacity = '0'; glitchImg.style.animation = ''; }, 340);
 
     // 5. Second flash
     setTimeout(() => {
-      flash.style.transition = 'opacity 0.03s';
-      flash.style.opacity = '0.7';
-      setTimeout(() => {
-        flash.style.transition = 'opacity 0.2s';
-        flash.style.opacity = '0';
-      }, 50);
-    }, 150);
+      fade(flash, 0.65, 30);
+      setTimeout(() => fade(flash, 0, 200), 55);
+    }, 160);
 
-    // 6. Scanlines fade in
+    // 6. Scanlines + vignette
     setTimeout(() => {
-      scanlines.style.transition = 'opacity 0.4s';
-      scanlines.style.opacity = '1';
-      vignette.style.transition = 'opacity 0.8s';
-      vignette.style.opacity = '1';
+      fade(scanlines, 1, 400);
+      fade(vignette, 1, 900);
     }, 400);
 
-    // 7. Title slams in
+    // 7. Hold on shocked, then WARP → salute
     setTimeout(() => {
-      textOverlay.style.transition = 'opacity 0.1s';
-      textOverlay.style.opacity = '1';
-      textOverlay.style.transform = 'translate(-50%, -50%) scale(1.3)';
-      setTimeout(() => {
-        textOverlay.style.transition = 'transform 0.2s ease';
-        textOverlay.style.transform = 'translate(-50%, -50%) scale(1)';
-      }, 100);
-    }, 600);
+      layerSalute.style.opacity = '1'; // visible underneath before warp starts
+      warpMorph(layerShocked, 1800, () => {
 
-  }, 3500); // wait 3.5 seconds on black screen
+        // 8. Hold on salute, then WARP → back + flag
+        setTimeout(() => {
+          // Fade flag video in, reveal back layer underneath salute
+          fade(flagVideo, 1, 400);
+          layerBack.style.opacity = '1';
+
+          warpMorph(layerSalute, 1800, () => {
+
+            // 9. Final state — CT-Back + flag — fade in title
+            setTimeout(() => {
+              textOverlay.style.transition = 'opacity 0.7s ease, bottom 0.7s ease';
+              textOverlay.style.opacity = '1';
+              textOverlay.style.bottom = '6vh';
+            }, 300);
+
+          });
+        }, 2800); // hold on salute for 2.8s
+      });
+    }, 2200); // hold on shocked for 2.2s
+
+  }, 3500); // 3.5s black screen
 </script>
 </body>
 </html>

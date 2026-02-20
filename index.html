@@ -163,7 +163,7 @@
   #flag-video {
     position: fixed;
     inset: 0;
-    z-index: 2;
+    z-index: 52;
     opacity: 0;
   }
   #flag-video video {
@@ -502,16 +502,14 @@
     // Fade text overlay out immediately and quickly (#2)
     fade(textOverlay, 0, 300);
 
-    // Fade to black
-    fade(fadeBlack, 1, half);
-    setTimeout(() => {
-      // While black: hide back, keep flag, show salute
-      layerBack.style.opacity = '0';
-      layerSalute.style.opacity = '1';
-      // flag stays on the whole time
+    // Crossfade CT-Back → CT-Hand directly, flag untouched underneath
+    layerSalute.style.opacity = '1';
+    layerSalute.style.zIndex = '4';
+    layerBack.style.transition = 'opacity 800ms ease';
+    layerBack.style.opacity = '0';
 
-      // Fade back in — eagle plays exactly as image appears (#3)
-      fade(fadeBlack, 0, half);
+    // Eagle plays as salute becomes visible
+    setTimeout(() => {
       eagle.play().catch(() => {});
 
       // After eagle finishes → fade to final title (flag keeps playing)
